@@ -1,133 +1,99 @@
-using Silk.NET.Core;
-using Silk.NET.OpenGL;
-using Silk.NET.Input;
-using Silk.NET.Maths;
-using Silk.NET.Windowing;
-using System.Drawing;
 using System.Runtime.CompilerServices;
+using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
+using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Desktop;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 //made with blood, sweat, and tears :3
 //weeb engine
-/*
-About
-[--Silk.NET--]
-The high-speed OpenGL, 
-OpenCL, OpenAL, OpenXR,
-GLFW, SDL, Vulkan, Assimp,
-WebGPU, and DirectX bindings 
-library your mother warned you about.
-*/
-public class Program
+namespace mainFile
 {
-    const string vss = @"
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-    void main()
+    public class Game : GameWindow
     {
-        gl_Position = vec4(aPos.xyz,1); // aPos.x, aPos.y, aPos.z, 1
-    }
-    ";
-    const string fss = @"
-    #version 330 core
-    out vec4 fragColor;
-    void main()
-    {
-        fragColor = vec4(1,0,1,1); // pink color
-    }
-    ";
-    public static float[] vertices =
-    {
-        0.5f,0.5f,0.0f,  //0
-        -0.5f,0.5f,0.0f, //1
-        -0.5f,-0.5f,0.0f,//2
-        0.5f,-0.5f,0.5f  //3
-    };
-    public static uint[] indices =
-    {
-        0,1,2,
-        2,3,0
-    };
-    private static IWindow window;
-    private static GL gl;
-    private static uint vao;
-    private static uint vbo;
-    private static uint ebo;
-    private static uint s;
-    public static void Main(string[] args)
-    {
-        WindowOptions options = WindowOptions.Default with
-        {
-            Size = new Vector2D<int>(800, 600),
-            Title = "haii:3"
+        private Timer timer;
+        private int vao;
+        private int vbo;
+        public Shader shader;
+
+        private int ebo;
+        //commenting out the ebo shit so then it can be used for indices later idk
+        public Game(int width, int height, string title) : base(GameWindowSettings.Default, new NativeWindowSettings() { ClientSize = (width, height), Title = title }) { }
+        float[] vertices = {
+             0.5f,  0.5f, 0.0f,  1.0f,0.0f,0.0f,// top right
+             0.5f, -0.5f, 0.0f,  0.0f,1.0f,0.0f,// bottom right
+            -0.5f, -0.5f, 0.0f,  0.0f,0.0f,1.0f,// bottom left
+            -0.5f,  0.5f, 0.0f,  1.0f,1.0f,0.0f// top left
         };
-        window = Window.Create(options);
-        window.Load += OnLoad;
-        window.Update += OnUpdate;
-        window.Render += OnRender;
-        window.Run();
-    }
-    private static unsafe void OnLoad()
-    {
-        gl = window.CreateOpenGL();
-        Console.WriteLine("Load!");
-        IInputContext input = window.CreateInput();
-        for (int i = 0; i < input.Keyboards.Count; i++)
+        uint[] indices = {
+            0,1,3,
+            1,2,3
+        };
+        public static void Main(string[] args)
         {
-            input.Keyboards[i].KeyDown += KeyDown;
+            using (Game game = new Game(800, 600, "haiii:3"))
+            {
+                game.Run();
+            }
         }
-        //gl.ClearColor(Color.DeepPink);
-        vao = gl.GenVertexArray();
-        gl.BindVertexArray(vao);
-        vbo = gl.GenBuffer();
-        gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
-        fixed (float* buf = vertices)
+        public double gettime()
         {
-            gl.BufferData(BufferTargetARB.ArrayBuffer, (nuint)(vertices.Length * sizeof(float)), buf, BufferUsageARB.StaticDraw);
+            return GLFW.GetTime();
         }
-        ebo = gl.GenBuffer();
-        gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo);
-        fixed (uint* ibuf = indices)
+        protected override void OnUpdateFrame(FrameEventArgs args)
         {
-            gl.BufferData(BufferTargetARB.ElementArrayBuffer, (nuint)(indices.Length * sizeof(uint)), ibuf, BufferUsageARB.StaticDraw);
+            base.OnUpdateFrame(args);
+            if (KeyboardState.IsKeyDown(Keys.Escape))
+            {
+                Close();
+            }
         }
-        uint vS = gl.CreateShader(ShaderType.VertexShader);
-        gl.ShaderSource(vS, vss);
-        gl.CompileShader(vS);
-        uint fS = gl.CreateShader(ShaderType.FragmentShader);
-        gl.ShaderSource(fS, fss);
-        gl.CompileShader(fS);
-        s = gl.CreateProgram();
-        gl.AttachShader(s, vS);
-        gl.AttachShader(s, fS);
-        gl.LinkProgram(s);
-        gl.DetachShader(s, vS);
-        gl.DetachShader(s, fS);
-        gl.DeleteShader(vS);
-        gl.DeleteShader(fS);
-        gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, true, 3 * sizeof(float), null);
-        gl.EnableVertexAttribArray(0);
+        protected override void OnLoad()
+        {
+            base.OnLoad();
+            vao = GL.GenVertexArray();
+            GL.BindVertexArray(vao);
+            vbo = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ArrayBuffer, vbo);
+            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, BufferUsageHint.StaticDraw);
+            ebo = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(uint), indices, BufferUsageHint.StaticDraw);
+            //GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            //GL.DeleteBuffer(vbo);
+            ///vertex shit
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, true, 6 * sizeof(float), 0);
+            GL.EnableVertexAttribArray(0);
+            //color enabling
+            GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, true, 6 * sizeof(float), 3 * sizeof(float));
+            GL.EnableVertexAttribArray(1);
 
-        gl.BindVertexArray(0);
-        gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
-        gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
-
-    }
-    private static void OnUpdate(double deltaTime)
-    {
-        //Thread.Sleep(250);
-    }
-    private static unsafe void OnRender(double deltaTime)
-    {
-        gl.ClearColor(Color.Crimson);
-        gl.Clear(ClearBufferMask.ColorBufferBit);
-        gl.BindVertexArray(vao);
-        gl.UseProgram(s);
-        gl.DrawElements(PrimitiveType.Triangles, (uint)indices.Length, DrawElementsType.UnsignedInt, null); // haha nullptr
-    }
-    private static void KeyDown(IKeyboard keyboard, Key key, int keyCode)
-    {
-        if (key == Key.Escape)
+            shader = new Shader("shaders/vert.glsl", "shaders/frag.glsl");
+            shader.Use();
+        }
+        protected override void OnRenderFrame(FrameEventArgs args)
         {
-            window.Close();
+            base.OnRenderFrame(args);
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.ClearColor(0f, 1f, 1f, 1f);
+            shader.Use();
+            //matrices handling for teh future but for now we're doing this color shit
+            double timeValue = gettime();
+            float greenValue = (float)Math.Sin(timeValue) / 2.0f + 0.5f;
+            int vertexColorLocation = GL.GetUniformLocation(shader.Handle, "uniColor");
+            GL.Uniform4(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+            GL.BindVertexArray(vao);
+            GL.DrawElements(PrimitiveType.Triangles, 6, DrawElementsType.UnsignedInt, 0);
+            //rendering code goes here (bind shader, bind vao, render with drawarrays or drawelements)
+            SwapBuffers();
+        }
+        protected override void OnFramebufferResize(FramebufferResizeEventArgs e)
+        {
+            base.OnFramebufferResize(e);
+            GL.Viewport(0, 0, e.Width, e.Height);
+        }
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
         }
     }
 }
