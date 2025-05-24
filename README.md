@@ -17,5 +17,6 @@ if you have any problems installing packages then just comment and ask me
 ```bash
 git clone https://github.com/tokyocplusplus/Weeb_Engine.git
 cd Weeb_Engine
+dotnet add package OpenTK
 dotnet run
 ```
