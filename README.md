@@ -11,6 +11,9 @@ sudo dnf install git gcc dotnet
 sudo apt install git gcc dotnet
 #lizards
 sudo zypper in git gcc dotnet
+#ew windows (this was developed on arch linux and windows)
+winget install Git.Git
+winget install Microsoft.DotNet.SDK.9
 ```
 if you have any problems installing packages then just comment and ask me
 # compilation
