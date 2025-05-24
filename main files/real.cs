@@ -1,9 +1,12 @@
-using mainFile;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Numerics;
 
 public class Meow
 {
-    void lowkeythough(string lowkey)
+    public void Haiiiiiii()
     {
-        Console.WriteLine(lowkey + "\n");
+        Console.WriteLine("Haiii:33");
     }
 }
