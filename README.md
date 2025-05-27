@@ -18,6 +18,8 @@ winget install Microsoft.DotNet.SDK.9
 if you have any problems installing packages then just comment and ask me
 # compilation
 ```bash
+# THIS HAS BEEN TESTED ON WINDOWS, FEDORA, AND ARCH LINUX.
+# IF IT DOESN'T WORK, SUBMIT A COMMENT ON THE RELEASES
 git clone https://github.com/tokyocplusplus/Weeb_Engine.git
 cd Weeb_Engine
 cd 'main files'
