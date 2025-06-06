@@ -5,8 +5,8 @@ using System.Numerics;
 
 public class Meow
 {
-    public void Haiiiiiii()
+    public Meow(string sayme)
     {
-        Console.WriteLine("Haiii:33");
+        Console.WriteLine(sayme);
     }
 }
